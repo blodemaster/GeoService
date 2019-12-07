@@ -1,0 +1,9 @@
+Flask==1.1.1
+
+# async broker and worker
+redis==3.3.11
+Celery==4.3.0
+
+# web server
+gunicorn==20.0.4
+gevent==1.4.0

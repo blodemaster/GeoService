@@ -1,0 +1,22 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level=info -k gevent
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  redis:
+    image: redis
+  celery:
+    build: .
+    command: celery worker -l info -A geoservice.tasks.celery
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
