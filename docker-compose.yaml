@@ -4,12 +4,14 @@ services:
     build: .
     ports:
       - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level=info -k gevent
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level=debug -k gevent
+#    command: python wsgi.py
     depends_on:
       - redis
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - FLASK_ENV=development
   redis:
     image: redis
   celery:

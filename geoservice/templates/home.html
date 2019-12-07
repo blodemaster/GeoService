@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Title</title>
+
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+  <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="app" class="m-3">
+  <h2>Geocoding</h2>
+  <b-form-group
+    label="Convert address to geographic coordinates"
+  >
+    <b-input-group>
+      <b-form-input v-model="givenAddress"></b-form-input>
+      <b-input-group-append>
+        <b-button variant="outline-primary" @click="submitCoordinatesTask">Submit</b-button>
+      </b-input-group-append>
+    </b-input-group>
+  </b-form-group>
+  <p>The corresponding coordinate is <span class="text-primary">{ returnCoord }</span></p>
+  <br>
+  <b-form-group label="Convert geographic coordinates to address">
+    <b-form inline>
+      <b-input-group prepend="Latitude" class="w-50">
+        <b-form-input v-model="givenLat" type="number"></b-form-input>
+      </b-input-group>
+      <b-input-group prepend="Longitude" class="w-50">
+        <b-form-input v-model="givenLng" type="number"></b-form-input>
+        <b-input-group-append>
+          <b-button variant="outline-success" @click="submitAddressTask">Submit</b-button>
+        </b-input-group-append>
+      </b-input-group>
+    </b-form>
+  </b-form-group>
+
+  <p>The corresponding address is <span class="text-success">{ returnAddress }</span></p>
+</div>
+<script>
+
+new Vue({
+  el: "#app",
+  delimiters: ['{', '}'],
+  data: {
+    givenAddress: 'H. C. Andersens Blvd. 27, 1553 København V, Denmark',
+    returnCoord: '',
+    givenLat: 55.674146,
+    givenLng: 12.569553,
+    returnAddress: '',
+  },
+  methods: {
+    getCoordinatesTaskStatus(url) {
+      setTimeout(() => {
+        axios({ method: "get", url: url }).then(resp => {
+          console.log(resp.data);
+          if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
+            this.returnCoord = resp.data.result;
+            axios({ method: 'delete', url})
+          } else {
+            this.getCoordinatesTaskStatus(url)
+          }
+        })
+      }, 1000);
+    },
+
+    submitCoordinatesTask() {
+      if (this.givenAddress) {
+        axios({
+          method: "get",
+          url: "{{ url_for('geocode') }}",
+          params: {
+            address: this.givenAddress,
+          }
+        }).then(resp => {
+          if (resp.status === 202) {
+            const url = resp.headers.location;
+            this.getCoordinatesTaskStatus(url);
+          }
+        }).catch(e => console.log(e))
+      }
+    },
+
+    getAddressTaskStatus(url) {
+      setTimeout(() => {
+        axios({method: "get", url: url}).then(resp => {
+          console.log(resp.data);
+          if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
+            this.returnAddress = resp.data.result;
+            axios({method: 'delete', url})
+          } else {
+            this.getAddressTaskStatus(url)
+          }
+        })
+      }, 1000);
+    },
+
+    submitAddressTask() {
+      if (this.givenAddress) {
+        axios({
+          method: "get",
+          url: "{{ url_for('reverse_geocode') }}",
+          params: {
+            coordinate: `${this.givenLat},${this.givenLng}`,
+          }
+        }).then(resp => {
+          if (resp.status === 202) {
+            const url = resp.headers.location;
+            this.getAddressTaskStatus(url);
+          }
+        }).catch(e => console.log(e))
+      }
+    },
+
+  }
+})
+</script>
+
+</body>
+</html>

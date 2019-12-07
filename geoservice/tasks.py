@@ -1,27 +1,36 @@
-from celery import Celery
-from geoservice.app import app
+import geocoder
+import requests
+
+from geoservice import create_app, create_celery
 
 
-def make_celery(app):
-    celery = Celery(
-        app.import_name,
-        backend=app.config['CELERY_RESULT_BACKEND'],
-        broker=app.config['CELERY_BROKER_URL']
-    )
-    celery.conf.update(app.config)
-
-    class ContextTask(celery.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery.Task = ContextTask
-    return celery
+app = create_app()
+celery = create_celery(app)
 
 
-celery = make_celery(app)
+@celery.task()
+def geocode(address):
+    """Get the coordinates of the given address using OpenStreetMap"""
+    try:
+        g = geocoder.osm(address)
+
+        latitude = g.json['lat']
+        longitude = g.json['lng']
+        return latitude, longitude
+    except requests.exceptions.ConnectionError:
+        return 'Cannot connect to server'
+    except KeyError:
+        return 'osm API failed'
 
 
-@celery.task
-def add(x, y):
-    return x + y
+@celery.task()
+def reverse_geocode(coordinate):
+    """Get the address of the given coordinate using OpenStreetMap"""
+    try:
+        g = geocoder.osm(coordinate, method='reverse')
+        address = g.json['address']
+        return address
+    except requests.exceptions.ConnectionError:
+        return 'Cannot connect to server'
+    except KeyError:
+        return 'osm API failed'

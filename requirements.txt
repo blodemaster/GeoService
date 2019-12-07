@@ -7,3 +7,6 @@ Celery==4.3.0
 # web server
 gunicorn==20.0.4
 gevent==1.4.0
+
+# geo service
+geocoder==1.38.1
