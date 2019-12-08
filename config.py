@@ -4,7 +4,7 @@ import os
 PROJECT_NAME = "geoservice"
 
 # flask app
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 LOGGER_NAME = f"{PROJECT_NAME}_log"
 LOG_FILENAME = os.environ.get("LOG_PATH", f"/var/tmp/app.{PROJECT_NAME}.log")
 LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO
