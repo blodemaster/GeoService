@@ -25,7 +25,7 @@
       </b-input-group-append>
     </b-input-group>
   </b-form-group>
-  <p>The corresponding coordinate is <span class="text-primary">{ returnCoord }</span></p>
+  <p>Result: <span :class="{'text-danger': geocodeError}" class="text-primary">{ returnCoord }</span></p>
   <br>
   <b-form-group label="Convert geographic coordinates to address">
     <b-form inline>
@@ -41,7 +41,7 @@
     </b-form>
   </b-form-group>
 
-  <p>The corresponding address is <span class="text-success">{ returnAddress }</span></p>
+  <p>Result: <span :class="{'text-danger': reverseGeocodeError}" class="text-success">{ returnAddress }</span></p>
 </div>
 <script>
 
@@ -51,9 +51,11 @@ new Vue({
   data: {
     givenAddress: 'H. C. Andersens Blvd. 27, 1553 København V, Denmark',
     returnCoord: '',
+    geocodeError: false,
     givenLat: 55.674146,
     givenLng: 12.569553,
     returnAddress: '',
+    reverseGeocodeError: false,
   },
   methods: {
     getCoordinatesTaskStatus(url) {
@@ -63,6 +65,10 @@ new Vue({
           if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
             this.returnCoord = resp.data.result;
             axios({ method: 'delete', url})
+          } else if (Object.prototype.hasOwnProperty.call(resp.data, 'error')){
+            this.geocodeErrorMsg = true;
+            this.returnCoord = resp.data.error;
+            axios({method: 'delete', url})
           } else {
             this.getCoordinatesTaskStatus(url)
           }
@@ -94,6 +100,10 @@ new Vue({
           if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
             this.returnAddress = resp.data.result;
             axios({method: 'delete', url})
+          } else if (Object.prototype.hasOwnProperty.call(resp.data, 'error') ) {
+            this.reverseGeocodeError = true;
+            this.returnAddress = resp.data.error;
+            axios({method: 'delete', url})
           } else {
             this.getAddressTaskStatus(url)
           }
@@ -103,6 +113,7 @@ new Vue({
 
     submitAddressTask() {
       if (this.givenAddress) {
+        this.reverseGeocodeError = false;
         axios({
           method: "get",
           url: "{{ url_for('reverse_geocode') }}",

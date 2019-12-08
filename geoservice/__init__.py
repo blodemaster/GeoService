@@ -15,11 +15,9 @@ def create_app():
 
 def create_celery(app):
     """Create a Celery application"""
-    celery = Celery(
-        app.name,
-        backend=app.config['CELERY_RESULT_BACKEND'],
-        broker=app.config['CELERY_BROKER_URL']
-    )
+    celery = Celery(app.name)
+
+    celery.config_from_object(config, namespace='CELERY')
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):

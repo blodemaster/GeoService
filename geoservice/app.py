@@ -14,9 +14,13 @@ def home():
 
 @app.route('/geocode', methods=['GET'])
 def geocode():
-    address = request.args.get('address')
-    task = tasks.geocode.delay(address)
-    return jsonify({}), 202, {'Location': url_for('geocode_task_status', task_id=task.id)}
+    try:
+        address = request.args['address']
+        task = tasks.geocode.delay(address)
+        return jsonify({}), 202, {'Location': url_for('geocode_task_status', task_id=task.id)}
+    except KeyError as e:
+        app.logger.error(e)
+        return jsonify({'error': 'missing address'}), 400
 
 
 @app.route('/geocode/task/<task_id>/status', methods=['GET', 'DELETE'])
@@ -25,16 +29,13 @@ def geocode_task_status(task_id):
     if request.method == 'GET':
         response = {'task_id': task_id, 'state': task.state}
 
-        if task.state == 'STARTED':
-            # job did not start yet
-            response.update({
-                'eta': 3,
-            })
-        elif task.state == 'SUCCESS':
-            response.update({'result': task.info})
+        if task.state == 'SUCCESS':
+            if 'error' in task.info:
+                response.update(task.info)
+            else:
+                response.update({'result': task.info})
         else:
             pass
-            # something went wrong in the background job
         return jsonify(response)
     elif request.method == 'DELETE':
         task.forget()
@@ -43,11 +44,19 @@ def geocode_task_status(task_id):
 
 @app.route('/reverse-geocode', methods=['GET'])
 def reverse_geocode():
-    raw_coord = request.args.get('coordinate').split(',')
-    coord = list(map(float, raw_coord))
-    print(coord)
-    task = tasks.reverse_geocode.delay(coord)
-    return jsonify({}), 202, {'Location': url_for('reverse_geocode_task_status', task_id=task.id)}
+    try:
+        raw_coord = request.args['coordinate'].split(',')
+        coord = list(map(float, raw_coord))
+        assert len(coord) == 2 and -90 <= coord[0] <= 90 and -180 <= coord[1] <= 180, f'Invalid input: {coord}'
+
+        task = tasks.reverse_geocode.delay(coord)
+        return jsonify({}), 202, {'Location': url_for('reverse_geocode_task_status', task_id=task.id)}
+    except KeyError as e:
+        app.logger.error(e)
+        return jsonify({'error': 'missing coordinate'}), 400
+    except AssertionError as e:
+        app.logger.error(e)
+        return jsonify({'error': 'invalid coordinate'}), 400
 
 
 @app.route('/reverse-geocode/task/<task_id>/status', methods=['GET', 'DELETE'])
@@ -56,16 +65,13 @@ def reverse_geocode_task_status(task_id):
     if request.method == 'GET':
         response = {'task_id': task_id, 'state': task.state}
 
-        if task.state == 'PENDING':
-            # job did not start yet
-            response.update({
-                'eta': 3,
-            })
-        elif task.state == 'SUCCESS':
-            response.update({'result': task.info})
+        if task.state == 'SUCCESS':
+            if 'error' in task.info:
+                response.update(task.info)
+            else:
+                response.update({'result': task.info})
         else:
             pass
-            # something went wrong in the background job
         return jsonify(response)
 
     elif request.method == 'DELETE':
