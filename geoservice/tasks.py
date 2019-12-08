@@ -28,8 +28,6 @@ def geocode(self, address):
             self.retry(countdown=2 ** self.request.retries)
         except MaxRetriesExceededError:
             return {'error': 'connect to the server failed'}
-    except KeyError:
-        return 'osm API failed'
 
 
 @celery.task(bind=True, max_retries=3)
@@ -48,5 +46,3 @@ def reverse_geocode(self, coordinate):
             self.retry(countdown=2 ** self.request.retries)
         except MaxRetriesExceededError:
             return 'connect to the server failed'
-    except KeyError:
-        return 'osm API failed'

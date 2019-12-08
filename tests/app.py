@@ -38,7 +38,7 @@ class TestGeocode(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class TestGeocodeTask(unittest.TestCase):
+class TestGeocodeTaskStatus(unittest.TestCase):
     def setUp(self):
         self.app_context = app.test_request_context()
         self.app_context.push()
@@ -130,7 +130,7 @@ class TestReverseGeocode(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class TestReverseGeocodeTask(unittest.TestCase):
+class TestReverseGeocodeTaskStatus(unittest.TestCase):
     def setUp(self):
         self.app_context = app.test_request_context()
         self.app_context.push()
