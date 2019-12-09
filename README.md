@@ -44,7 +44,7 @@ python tests/tasks.py
 
 As there are only four endpoints, API will be documented here as plain text.
 
-####Geocode
+**Geocode**
 Submit the valid request as an async task for geocoding and return the location for fetching the task status and result
 
 * **URL**:  `/geocode`
@@ -69,7 +69,7 @@ Submit the valid request as an async task for geocoding and return the location 
     request.get('http://localhost:5000/geocode?address=H.+C.+Andersens+Blvd.+27,+1553+K%C3%B8benhavn+V,+Denmark')
   ```
 
-####Geocode Task Status
+**Geocode Task Status**
 Return the task status for geocoding.
 
 It should be got from the `Location` Headers of the geocode endpoint 
@@ -99,7 +99,7 @@ It should be got from the `Location` Headers of the geocode endpoint
       * **Code:** 204 No Content 
 
 
-####Reverse Geocode
+**Reverse Geocode**
 Submit the valid request as an async task for obtaining the address of provided coordinates 
 and return the location for fetching the task status and result
 
@@ -129,7 +129,7 @@ and return the location for fetching the task status and result
     request.get('http://localhost:5000/reverse-geocode?coordinate=55.674146,12.569553')
   ```
 
-####Reverse Geocode Task Status
+**Reverse Geocode Task Status**
 Return the task status for geocoding.
 
 It should be got from the `Location` Headers of the reverse geocode endpoint 
