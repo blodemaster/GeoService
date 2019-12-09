@@ -4,7 +4,7 @@ services:
     build: .
     ports:
       - "5000:5000"
-    command: gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level=debug -k gevent
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level=info -k gevent
     depends_on:
       - redis
     env_file:

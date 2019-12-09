@@ -45,4 +45,4 @@ def reverse_geocode(self, coordinate):
         try:
             self.retry(countdown=2 ** self.request.retries)
         except MaxRetriesExceededError:
-            return 'connect to the server failed'
+            return {'error': 'connect to the server failed'}

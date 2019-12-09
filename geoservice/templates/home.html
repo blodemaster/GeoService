@@ -30,10 +30,10 @@
   <b-form-group label="Convert geographic coordinates to address">
     <b-form inline>
       <b-input-group prepend="Latitude" class="w-50">
-        <b-form-input v-model="givenLat" type="number"></b-form-input>
+        <b-form-input v-model="givenLat" type="number" :state="latState"></b-form-input>
       </b-input-group>
       <b-input-group prepend="Longitude" class="w-50">
-        <b-form-input v-model="givenLng" type="number"></b-form-input>
+        <b-form-input v-model="givenLng" type="number" :state="lngState"></b-form-input>
         <b-input-group-append>
           <b-button variant="outline-success" @click="submitAddressTask">Submit</b-button>
         </b-input-group-append>
@@ -56,6 +56,20 @@ new Vue({
     givenLng: 12.569553,
     returnAddress: '',
     reverseGeocodeError: false,
+  },
+  computed: {
+    latState() {
+      if (this.givenLat > 90 || this.givenLat < -90) {
+        return false;
+      }
+      return null;
+    },
+    lngState() {
+      if (this.givenLng > 180 || this.givenLng < -180) {
+        return false;
+      }
+      return null;
+    }
   },
   methods: {
     getCoordinatesTaskStatus(url) {
