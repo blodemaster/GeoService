@@ -25,6 +25,7 @@ def geocode():
 
 @app.route('/geocode/task/<task_id>/status', methods=['GET', 'DELETE'])
 def geocode_task_status(task_id):
+    """Return status and result of the task"""
     task = tasks.geocode.AsyncResult(task_id)
     if request.method == 'GET':
         response = {'task_id': task_id, 'state': task.state}
@@ -32,10 +33,10 @@ def geocode_task_status(task_id):
         if task.state == 'SUCCESS':
             if 'error' in task.info:
                 response.update(task.info)
+                return jsonify(response), 503
             else:
                 response.update({'result': task.info})
-        else:
-            pass
+
         return jsonify(response)
     elif request.method == 'DELETE':
         task.forget()
@@ -68,10 +69,10 @@ def reverse_geocode_task_status(task_id):
         if task.state == 'SUCCESS':
             if 'error' in task.info:
                 response.update(task.info)
+                return jsonify(response), 503
             else:
                 response.update({'result': task.info})
-        else:
-            pass
+
         return jsonify(response)
 
     elif request.method == 'DELETE':

@@ -73,7 +73,7 @@ class TestGeocodeTaskStatus(unittest.TestCase):
 
         url = url_for('geocode_task_status', task_id=self.task_id)
         response = self.app.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 503)
         self.assertDictEqual(response.json, gt)
 
     def test_request_wo_query(self):
@@ -165,7 +165,7 @@ class TestReverseGeocodeTaskStatus(unittest.TestCase):
 
         url = url_for('reverse_geocode_task_status', task_id=self.task_id)
         response = self.app.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 503)
         self.assertDictEqual(response.json, gt)
 
     def test_request_wo_query(self):

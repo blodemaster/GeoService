@@ -21,7 +21,7 @@
     <b-input-group>
       <b-form-input v-model="givenAddress"></b-form-input>
       <b-input-group-append>
-        <b-button variant="outline-primary" @click="submitCoordinatesTask">Submit</b-button>
+        <b-button variant="primary" @click="submitCoordinatesTask">Submit</b-button>
       </b-input-group-append>
     </b-input-group>
   </b-form-group>
@@ -35,7 +35,10 @@
       <b-input-group prepend="Longitude" class="w-50">
         <b-form-input v-model="givenLng" type="number" :state="lngState"></b-form-input>
         <b-input-group-append>
-          <b-button variant="outline-success" @click="submitAddressTask">Submit</b-button>
+          <b-button
+            variant="success"
+            :disabled="latState===false || lngState===false"
+            @click="submitAddressTask">Submit</b-button>
         </b-input-group-append>
       </b-input-group>
     </b-form>
@@ -79,13 +82,13 @@ new Vue({
           if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
             this.returnCoord = resp.data.result;
             axios({ method: 'delete', url})
-          } else if (Object.prototype.hasOwnProperty.call(resp.data, 'error')){
-            this.geocodeErrorMsg = true;
-            this.returnCoord = resp.data.error;
-            axios({method: 'delete', url})
-          } else {
+          }  else {
             this.getCoordinatesTaskStatus(url)
           }
+        }).catch(e => {
+          const resp = e.response;
+          this.geocodeError = true;
+          this.returnCoord = resp.data.error;
         })
       }, 1000);
     },
@@ -114,13 +117,13 @@ new Vue({
           if (Object.prototype.hasOwnProperty.call(resp.data, 'result')) {
             this.returnAddress = resp.data.result;
             axios({method: 'delete', url})
-          } else if (Object.prototype.hasOwnProperty.call(resp.data, 'error') ) {
-            this.reverseGeocodeError = true;
-            this.returnAddress = resp.data.error;
-            axios({method: 'delete', url})
           } else {
             this.getAddressTaskStatus(url)
           }
+        }).catch(e => {
+          const resp = e.response;
+          this.reverseGeocodeError = true;
+          this.returnAddress = resp.data.error;
         })
       }, 1000);
     },
