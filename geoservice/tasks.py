@@ -22,7 +22,7 @@ def geocode(self, address):
 
             return latitude, longitude
         else:
-            return g.json['status']
+            return g.status
     except requests.exceptions.ConnectionError:
         try:
             self.retry(countdown=2 ** self.request.retries)
@@ -40,7 +40,7 @@ def reverse_geocode(self, coordinate):
             address = g.json['address']
             return address
         else:
-            return g.json['status']
+            return g.status
     except requests.exceptions.ConnectionError:
         try:
             self.retry(countdown=2 ** self.request.retries)

@@ -23,20 +23,20 @@ They are available at **variable.env**.
 
 ### Testing
 The testing is done using the Python native library unittest. 
-Since the test should be running on local computer, you should have all dependencies installed inside `requirements.txt`.
+Since the test requires the dependency of other libraries, you should have them installed, listed in `requirements.txt`, when you want to run it on local PC directly.
+The alternative way is to execute the test inside the running docker container following `docker exec -it [container id for geoservice_web] bash`
 
-To run the test, 
+To run the test
 
 ```sh
-python tests/app.py
-python tests/tasks.py
+python -m unittest discover
 ```
 
 ### Technology choices
 
 - Flask: since the offered service is relatively simple, I choose it as it is the most widely used micro web framework for Python
-- Redis: used as the message broker for Celery. It is stable and can be used for other purposes like caching
-- Celery: async task queue for processing input. It is widely used and I have used it a lot.
+- Redis: Message broker for Celery. It is stable and can be used for other purposes like caching
+- Celery: async task queue for processing input. The most commonly used library for handling async tasks and I have used it a lot.
 - Vue.js: front-end framework for building the UI part. It is selected out of the familiarity.
 - Gunicorn: web server for running application for production purpose
 
@@ -88,10 +88,6 @@ It should be got from the `Location` Headers of the geocode endpoint
       * **Code:** 200 OK <br />
         **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'result': [55.674146, 12.569553] }`
         **Description:** get coordinates back
-      
-      * **Code:** 200 OK <br />
-        **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'error': 'connect to the server failed' }`
-        **Description:** cannot connect to the third party geoservice provider
         
       * **Code:** 200 OK <br />
         **Content:** `{ task_id : "1234556", 'state': STARTED }`
@@ -100,6 +96,13 @@ It should be got from the `Location` Headers of the geocode endpoint
   * DELETE request
       * **Code:** 204 No Content 
 
+* **Error Response:**
+
+  * **Code:** 503 Service Unavailable <br />
+  
+    **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'error': 'connect to the server failed' }`
+    
+    **Description:** cannot connect to the third party geoservice provider
 
 **Reverse Geocode**
 
@@ -148,16 +151,24 @@ It should be got from the `Location` Headers of the reverse geocode endpoint
 
   * GET request
       * **Code:** 200 OK <br />
+      
         **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'result': 'Tivoli, H.C. Andersens Boulevard, Kødbyen, Vesterbro, København, Københavns Kommune, Region Hovedstaden, 1553, Danmark' }`
+        
         **Description:** get coordinates back
       
       * **Code:** 200 OK <br />
-        **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'error': 'connect to the server failed' }`
-        **Description:** cannot connect to the third party geoservice provider
-        
-      * **Code:** 200 OK <br />
+      
         **Content:** `{ task_id : "1234556", 'state': STARTED }`
+        
         **Description:** the task has started but does not receive the outcome yet
         
   * DELETE request
-      * **Code:** 204 No Content 
+      * **Code:** 204 No Content
+      
+       
+  * **Error Response:**
+      * **Code:** 503 Service Unavailable <br />
+      
+        **Content:** `{ task_id : "1234556", 'state': SUCCESS, 'error': 'connect to the server failed' }`
+        
+        **Description:** cannot connect to the third party geoservice provider
