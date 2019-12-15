@@ -34,7 +34,7 @@ class TestGeocodeTask(unittest.TestCase):
         gt = 'ERROR - No results found'
         geocode_task = MagicMock()
         setattr(geocode_task, 'ok', False)
-        setattr(geocode_task, 'json', {'status': gt})
+        setattr(geocode_task, 'status', gt)
         mock.return_value = geocode_task
 
         address = "H. C. Andersens Blvd. 27, 1553 København V, Denmark"
@@ -82,7 +82,7 @@ class ReverseTestGeocodeTask(unittest.TestCase):
         gt = 'ERROR - No results found'
         reverse_geocode_task = MagicMock()
         setattr(reverse_geocode_task, 'ok', False)
-        setattr(reverse_geocode_task, 'json', {'status': gt})
+        setattr(reverse_geocode_task, 'status', gt)
         mock.return_value = reverse_geocode_task
 
         coord = [55.674146, 12.569553]
